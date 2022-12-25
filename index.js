@@ -85,53 +85,52 @@ const run = async () => {
 
 
 
-    //Orders API
 
-    app.get("/orders",  async (req, res) => {
-      const decoded = req.decoded;
-      if(decoded.email !== req.query.email) {
-        res.status(403).send({message: 'Unauthorized access'})
-      }
-      // console.log('inside orders', decoded );
-      let query = {};
-      if (req?.query?.email) {
-        query = {
-          email: req?.query?.email,
-        };
-      }
-      const cursor = orderCollection.find(query);
-      const orders = await cursor.toArray();
-      res.send(orders);
-    });
+    // app.get("/orders",  async (req, res) => {
+    //   const decoded = req.decoded;
+    //   if(decoded.email !== req.query.email) {
+    //     res.status(403).send({message: 'Unauthorized access'})
+    //   }
+    //   // console.log('inside orders', decoded );
+    //   let query = {};
+    //   if (req?.query?.email) {
+    //     query = {
+    //       email: req?.query?.email,
+    //     };
+    //   }
+    //   const cursor = orderCollection.find(query);
+    //   const orders = await cursor.toArray();
+    //   res.send(orders);
+    // });
 
-    app.post("/orders",  async (req, res) => {
+    // app.post("/orders",  async (req, res) => {
     
-      const order = req.body;
-      const result = await orderCollection.insertOne(order);
-      res.send(result);
-    });
+    //   const order = req.body;
+    //   const result = await orderCollection.insertOne(order);
+    //   res.send(result);
+    // });
 
-    app.patch("/orders/:id",  async (req, res) => {
+    // app.patch("/orders/:id",  async (req, res) => {
     
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const status = req.body.status;
-      const updatedOrder = {
-        $set: {
-          status: status,
-        },
-      };
-      const result = await orderCollection.updateOne(query, updatedOrder);
-      res.send(result);
-    });
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const status = req.body.status;
+    //   const updatedOrder = {
+    //     $set: {
+    //       status: status,
+    //     },
+    //   };
+    //   const result = await orderCollection.updateOne(query, updatedOrder);
+    //   res.send(result);
+    // });
 
-    app.delete("/orders/:id",  async (req, res) => {
+    // app.delete("/orders/:id",  async (req, res) => {
    
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await orderCollection.deleteOne(query);
-      res.send(result);
-    });
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await orderCollection.deleteOne(query);
+    //   res.send(result);
+    // });
   } finally {
   }
 };
@@ -139,9 +138,9 @@ const run = async () => {
 run().catch((err) => console.log(err));
 
 app.get("/", (req, res) => {
-  res.send("Car mechanic server is running");
+  res.send("Hair cut server is running");
 });
 
 app.listen(port, () => {
-  console.log(`Car mechanic server running on port:${port}`);
+  console.log(`Hair cut server running on port:${port}`);
 });
