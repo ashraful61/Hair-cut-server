@@ -17,22 +17,21 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-
-function verifyJwtToken(req, res, next){
+function verifyJwtToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  if(!authHeader){
-      return res.status(401).send({message: 'unauthorized access'});
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized access" });
   }
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded){
-      if(err){
-          return res.status(403).send({message: 'Forbidden access'});
-      }
-      req.decoded = decoded;
-      next();
-  })
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
 }
 
 const run = async () => {
@@ -41,8 +40,7 @@ const run = async () => {
     const serviceCollection = db.collection("services");
     const reviewCollection = db.collection("reviews");
 
-
-   //Post jwt api
+    //Post jwt api
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -51,23 +49,20 @@ const run = async () => {
       res.send({ token });
     });
 
-    
     //Get all services or specific item
     app.get("/services", async (req, res) => {
-      const query = {}
-      if(req?.query?.limit) {
-       const cursor = serviceCollection.find(query);
-       const services = await cursor.limit(3).toArray();
-       res.send(services);
-      }
-      else {
-       const cursor = serviceCollection.find(query);
-       const services = await cursor.toArray();
-       res.send(services);
+      const query = {};
+      if (req?.query?.limit) {
+        const cursor = serviceCollection.find(query);
+        const services = await cursor.limit(3).toArray();
+        res.send(services);
+      } else {
+        const cursor = serviceCollection.find(query);
+        const services = await cursor.toArray();
+        res.send(services);
       }
     });
 
-    
     //Get service by id
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
@@ -83,17 +78,26 @@ const run = async () => {
       res.send(result);
     });
 
+    //Reviews api
 
-    //Reviews api 
-
-     app.post("/reviews", async (req, res) => {
+    app.post("/reviews", async (req, res) => {
       const review = req.body;
-      console.log(review)
+      console.log(review);
       const result = await reviewCollection.insertOne(review);
       res.send(result);
     });
 
-    
+    // app.get("/getReviewsByServiceId/:id", async (req, res) => {
+    //   const id = req.params.id;
+
+    //   const query = {
+    //     service_id: id,
+    //   };
+
+    //   const cursor = reviewCollection.find(query);
+    //   const reviews = await cursor.toArray();
+    //   res.send(reviews);
+    // });
 
     app.get("/reviews", async (req, res) => {
       let query = {};
@@ -107,18 +111,17 @@ const run = async () => {
       res.send(reviews);
     });
 
-      //Get review by id
-      app.get("/reviews/:id", async (req, res) => {
-        const id = req.params.id;
-        // console.log(id)
-        const query = { service_id : id};
-        const reviews = await reviewCollection.find(query).toArray();
-        // console.log(reviews)
-        res.send(reviews);
-      });
-  
+    //Get review by service id
+    app.get("/getReviewsByServiceId/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id)
+      const query = { service_id: id };
+      const reviews = await reviewCollection.find(query).toArray();
+      // console.log(reviews)
+      res.send(reviews);
+    });
 
-    app.patch("/reviews/:id",  async (req, res) => {   
+    app.patch("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const review = req.body.review;
@@ -131,13 +134,12 @@ const run = async () => {
       res.send(result);
     });
 
-    app.delete("/reviews/:id",  async (req, res) => {
+    app.delete("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
       res.send(result);
     });
-
   } finally {
   }
 };
