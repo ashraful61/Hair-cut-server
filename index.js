@@ -17,23 +17,22 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-function verifyJwtToken(req, res, next) {
-  const authHeader = req.headers.authorization;
+function verifyJwtToken(req, res, next){
+  const authHeader = req?.headers?.authorization;
 
-  if (!authHeader) {
-    return res.status(401).send({ message: "unauthorized access" });
+  if(!authHeader){
+      return res.status(401).send({message: 'unauthorized access'});
   }
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(' ')[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ message: "Forbidden access" });
-    }
-    req.decoded = decoded;
-    next();
-  });
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded){
+      if(err){
+          return res.status(403).send({message: 'Forbidden access'});
+      }
+      req.decoded = decoded;
+      next();
+  })
 }
-
 const run = async () => {
   try {
     const db = client.db("hairCut");
@@ -49,7 +48,7 @@ const run = async () => {
       res.send({ token });
     });
 
-    //Get all services or specific item
+    //Get all services or limit
     app.get("/services", async (req, res) => {
       const query = {};
       if (req?.query?.limit) {
@@ -72,7 +71,7 @@ const run = async () => {
     });
 
     //Post services
-    app.post("/services", async (req, res) => {
+    app.post("/services", verifyJwtToken, async (req, res) => {
       const service = req.body;
       const result = await serviceCollection.insertOne(service);
       res.send(result);
@@ -80,8 +79,14 @@ const run = async () => {
 
     //Reviews api
 
-    app.post("/reviews", async (req, res) => {
+    app.post("/reviews",verifyJwtToken, async (req, res) => {
+     
+      const decoded = req.decoded;
       const review = req.body;
+      if(decoded.email !== review.reviewer_email) {
+        res.status(403).send({message: 'Unauthorized access'})
+      }
+   
       console.log(review);
       const result = await reviewCollection.insertOne(review);
       res.send(result);
@@ -109,7 +114,7 @@ const run = async () => {
       res.send(reviews);
     });
 
-    app.patch("/reviews/:id", async (req, res) => {
+    app.patch("/reviews/:id", verifyJwtToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const comment = req.body.comment;
@@ -123,7 +128,7 @@ const run = async () => {
       res.send(result);
     });
 
-    app.delete("/reviews/:id", async (req, res) => {
+    app.delete("/reviews/:id",verifyJwtToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
