@@ -87,18 +87,6 @@ const run = async () => {
       res.send(result);
     });
 
-    // app.get("/getReviewsByServiceId/:id", async (req, res) => {
-    //   const id = req.params.id;
-
-    //   const query = {
-    //     service_id: id,
-    //   };
-
-    //   const cursor = reviewCollection.find(query);
-    //   const reviews = await cursor.toArray();
-    //   res.send(reviews);
-    // });
-
     app.get("/reviews", async (req, res) => {
       let query = {};
       if (req?.query?.email) {
@@ -124,10 +112,11 @@ const run = async () => {
     app.patch("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const review = req.body.review;
+      const comment = req.body.comment;
+
       const updatedReview = {
         $set: {
-          review,
+          comment,
         },
       };
       const result = await reviewCollection.updateOne(query, updatedReview);
